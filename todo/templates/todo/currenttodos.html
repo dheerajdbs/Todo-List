@@ -3,4 +3,16 @@
 {% block content %}
 Current
 
+{% for todo in todos %}
+<ul>
+    <li>
+        <a href="{% url 'tododesc' todo.id %}">
+            {% if todo.important %} <b>{% endif %}
+            {{ todo.title }} 
+            {% if todo.important %}</b>{% endif %}
+            {% if todo.memo %} - {{ todo.memo|truncatechars:10 }}{% endif %}
+        </a>
+    </li>
+</ul>
+{% endfor %}
 {% endblock %}
