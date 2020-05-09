@@ -56,9 +56,17 @@ def currenttodos(request):
     return render(request,'todo/currenttodos.html' , {'todos' : todos})
 
 def tododesc(request , todo_id):
-    todo_id = get_object_or_404(Todo , pk = todo_id)
-    return render(request,"todo/tododesc.html" ,{'todo_id' : todo_id})
-
+    todo_id = get_object_or_404(Todo , pk = todo_id , user= request.user)
+    if request.method == "GET":
+        form = TodoForm(instance=todo_id)
+        return render(request,"todo/tododesc.html" ,{'todo_id' : todo_id , 'form' : form})
+    else:
+        try:
+            form = TodoForm(request.POST ,instance=todo_id)
+            form.save()
+            return redirect('currenttodos')
+        except ValueError:
+            return render(request,"todo/tododesc.html" ,{'todo_id' : todo_id , 'form' : form , 'error' : "Bad Data Passed In.Please Try Again"})
 def userlogout(request):
     if request.method == "POST":
         logout(request)
