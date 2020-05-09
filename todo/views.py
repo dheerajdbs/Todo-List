@@ -5,6 +5,8 @@ from django.db import IntegrityError
 from django.contrib.auth import login, logout , authenticate 
 from .forms import TodoForm
 from .models import Todo
+from django.utils import timezone
+from django.contrib.auth.decorators import login_required
 
 def home(request):
     return render(request,"todo/home.html")
@@ -38,6 +40,7 @@ def userlogin(request):
             login(request, user) 
             return redirect('currenttodos')
 
+@login_required
 def createtodos(request):
     if request.method == "GET":
         return render(request,"todo/createtodos.html" , {'form':TodoForm()})
@@ -51,10 +54,12 @@ def createtodos(request):
         except ValueError:
             return render(request,"todo/createtodos.html" , {'form':TodoForm() , 'error' : 'Bad Data Passed In.Please Try Again'})
 
+@login_required
 def currenttodos(request):
     todos = Todo.objects.filter(user = request.user , datecompleted__isnull = True)
     return render(request,'todo/currenttodos.html' , {'todos' : todos})
 
+@login_required
 def tododesc(request , todo_id):
     todo_id = get_object_or_404(Todo , pk = todo_id , user= request.user)
     if request.method == "GET":
@@ -67,7 +72,30 @@ def tododesc(request , todo_id):
             return redirect('currenttodos')
         except ValueError:
             return render(request,"todo/tododesc.html" ,{'todo_id' : todo_id , 'form' : form , 'error' : "Bad Data Passed In.Please Try Again"})
+
+@login_required
 def userlogout(request):
     if request.method == "POST":
         logout(request)
         return redirect('home')
+
+@login_required
+def completetodo(request , todo_id):
+    todo_id = get_object_or_404(Todo , pk = todo_id , user= request.user)
+    if request.method == "POST":
+        todo_id.datecompleted = timezone.now()
+        todo_id.save()
+        return redirect('currenttodos')
+
+@login_required
+def deletetodo(request , todo_id):
+    todo_id = get_object_or_404(Todo , pk = todo_id , user= request.user)
+    if request.method == "POST":
+        todo_id.delete()
+        return redirect('currenttodos')
+
+@login_required
+def completedtodo(request):
+    todos = Todo.objects.filter(user = request.user , datecompleted__isnull = False).order_by('-datecompleted')
+    return render(request,'todo/completedtodo.html' , {'todos' : todos})
+

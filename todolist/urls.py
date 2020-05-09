@@ -30,6 +30,10 @@ urlpatterns = [
     #ToDo
     path('current/', views.currenttodos , name="currenttodos"),
     path('create/', views.createtodos , name="createtodos"),
-    path('current/<int:todo_id>', views.tododesc , name="tododesc"),
+    path('current/<int:todo_id>/', views.tododesc , name="tododesc"),
+    path('current/<int:todo_id>/complete/', views.completetodo , name="completetodo"),
+    path('current/<int:todo_id>/delete/', views.deletetodo , name="deletetodo"),
+    path('completed/', views.completedtodo , name="completedtodo"),
+    
     
 ]
